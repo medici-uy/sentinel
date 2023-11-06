@@ -1,23 +1,14 @@
+mod config;
+mod helpers;
+
 use lambda_runtime::{service_fn, Error, LambdaEvent};
 use medici_rust_shared::monitoring::Monitoring;
 use once_cell::sync::Lazy;
 use reqwest::StatusCode;
-use serde::Deserialize;
 use url::Url;
 
-#[derive(Deserialize, Debug)]
-pub struct Config {
-    pub engine_url: Url,
-    pub web_url: Url,
-}
-
-impl Config {
-    pub fn load() -> Self {
-        envy::from_env().expect("couldn't load config from env")
-    }
-}
-
-pub static CONFIG: Lazy<Config> = Lazy::new(Config::load);
+use config::*;
+use helpers::{was_engine_deployed_recently, was_healthy};
 
 pub static ENGINE_MONITORING_URL: Lazy<Url> = Lazy::new(|| {
     CONFIG
@@ -55,12 +46,12 @@ impl Status {
 }
 
 async fn handler(_event: LambdaEvent<()>) -> Result<(), Error> {
-    let was_healthy = true;
+    let was_healthy = was_healthy().await?;
     let status = check().await;
 
     if !was_healthy && status.healthy() {
         todo!();
-    } else if was_healthy && !status.healthy() {
+    } else if was_healthy && !status.healthy() && !was_engine_deployed_recently().await? {
         todo!();
     }
 
@@ -114,5 +105,7 @@ async fn get_web_status_code() -> Result<reqwest::StatusCode, Error> {
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    init_aws().await;
+
     lambda_runtime::run(service_fn(handler)).await
 }
