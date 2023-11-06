@@ -21,6 +21,8 @@ impl Config {
     }
 }
 
+pub static HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(reqwest::Client::new);
+
 pub static AWS_SDK_CONFIG: OnceLock<aws_config::SdkConfig> = OnceLock::new();
 pub static AWS_SES_CLIENT: Lazy<aws_sdk_sesv2::Client> =
     Lazy::new(|| aws_sdk_sesv2::Client::new(aws_sdk_config()));

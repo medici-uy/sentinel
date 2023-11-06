@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use lambda_runtime::Error;
 
 use super::config::*;
+use super::status::Status;
 
 async fn engine_last_deployed_at() -> Result<DateTime<Utc>, Error> {
     let services_response = AWS_ECS_CLIENT
@@ -58,4 +59,15 @@ pub async fn was_healthy() -> Result<bool, Error> {
         .expect("couldn't convert healthy attribute to boolean");
 
     Ok(*last_healthy)
+}
+
+pub async fn insert_status_change(status: Status) -> Result<(), Error> {
+    AWS_DYNAMODB_CLIENT
+        .put_item()
+        .table_name(&CONFIG.status_table_name)
+        .set_item(Some(status.into()))
+        .send()
+        .await?;
+
+    Ok(())
 }
