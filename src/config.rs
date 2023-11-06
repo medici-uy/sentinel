@@ -13,6 +13,8 @@ pub struct Config {
     pub engine_cluster_arn: String,
     pub engine_service_arn: String,
     pub status_table_name: String,
+    pub from_email_address: String,
+    pub to_email_address: String,
 }
 
 impl Config {

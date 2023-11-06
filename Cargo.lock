@@ -1175,9 +1175,10 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 [[package]]
 name = "medici-rust-shared"
 version = "0.1.0"
-source = "git+https://github.com/medici-uy/rust-shared#f4be8083e6ad4b760a019e0f032333c6432deb6e"
+source = "git+https://github.com/medici-uy/rust-shared#ce977e257014d0c9b350297c40e3aecc56d2be12"
 dependencies = [
  "anyhow",
+ "aws-sdk-sesv2",
  "blake3",
  "chrono",
  "once_cell",

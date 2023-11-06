@@ -7,16 +7,13 @@ use lambda_runtime::{service_fn, Error, LambdaEvent};
 
 use config::*;
 use email::send_email;
-use helpers::{insert_status_change, was_engine_deployed_recently, was_healthy};
+use helpers::insert_status_change;
 use status::Status;
 
 async fn handler(_event: LambdaEvent<()>) -> Result<(), Error> {
-    let was_healthy = was_healthy().await?;
     let status = Status::check().await;
 
-    if (!was_healthy && status.healthy())
-        || (was_healthy && !status.healthy() && !was_engine_deployed_recently().await?)
-    {
+    if status.did_change().await? {
         insert_status_change(status.clone()).await?;
         send_email(status).await?;
     }
