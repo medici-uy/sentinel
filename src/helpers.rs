@@ -29,12 +29,14 @@ async fn engine_last_deployed_at() -> Result<DateTime<Utc>, Error> {
     Ok(last_deployed_at.into())
 }
 
+const ENGINE_DEPLOYMENT_TOLERANCE_IN_MINUTES: u8 = 15;
+
 pub async fn was_engine_deployed_recently() -> Result<bool, Error> {
     let now = Utc::now();
     let last_deployed_at = engine_last_deployed_at().await?;
     let difference = now - last_deployed_at;
 
-    Ok(difference.num_minutes() < 15)
+    Ok(difference.num_minutes() < ENGINE_DEPLOYMENT_TOLERANCE_IN_MINUTES as i64)
 }
 
 pub async fn was_healthy() -> Result<bool, Error> {
