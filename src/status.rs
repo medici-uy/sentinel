@@ -41,10 +41,10 @@ impl Status {
             return false;
         };
 
-        return self.engine_error.is_none()
+        self.engine_error.is_none()
             && self.web_error.is_none()
             && engine_status.healthy()
-            && web_status_code.is_success();
+            && web_status_code.is_success()
     }
 
     pub async fn did_change(&self) -> Result<bool, Error> {

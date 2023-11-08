@@ -26,7 +26,7 @@ async fn engine_last_deployed_at() -> Result<DateTime<Utc>, Error> {
         .expect("no created_at in deployment")
         .to_chrono_utc()?;
 
-    Ok(last_deployed_at.into())
+    Ok(last_deployed_at)
 }
 
 const ENGINE_DEPLOYMENT_TOLERANCE_IN_MINUTES: u8 = 15;
