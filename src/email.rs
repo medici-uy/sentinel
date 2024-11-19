@@ -1,11 +1,11 @@
 use aws_sdk_sesv2::types::Destination;
 use chrono::{DateTime, Utc};
 use lambda_runtime::Error;
-use medici_rust_shared::traits::EmailTemplate;
+use medici_shared::traits::EmailTemplate;
 use serde::Serialize;
 
+use super::config::aws_ses_client;
 use super::Status;
-use super::AWS_SES_CLIENT;
 use super::CONFIG;
 
 #[derive(Serialize, Clone, Debug)]
@@ -33,7 +33,7 @@ pub async fn send_email(status: Status) -> Result<(), Error> {
         .to_addresses(&CONFIG.to_email_address)
         .build();
 
-    AWS_SES_CLIENT
+    aws_ses_client()
         .send_email()
         .from_email_address(&CONFIG.from_email_address)
         .destination(destination)

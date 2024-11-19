@@ -5,7 +5,7 @@ mod status;
 
 use lambda_runtime::{service_fn, Error, LambdaEvent};
 
-use config::*;
+use config::CONFIG;
 use email::send_email;
 use helpers::insert_status_change;
 use status::Status;
@@ -23,7 +23,7 @@ async fn handler(_event: LambdaEvent<()>) -> Result<(), Error> {
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    init_aws().await;
+    config::init().await;
 
     lambda_runtime::run(service_fn(handler)).await
 }

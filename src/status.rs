@@ -1,10 +1,10 @@
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
 use lambda_runtime::Error;
-use medici_rust_shared::status::engine::EngineStatus;
-use once_cell::sync::Lazy;
+use medici_shared::status::engine::EngineStatus;
 use reqwest::StatusCode;
 use url::Url;
 
@@ -13,12 +13,8 @@ use super::helpers::{was_engine_deployed_recently, was_healthy};
 
 const STATUS_TABLE_PK_VALUE: &str = "medici";
 
-pub static ENGINE_STATUS_URL: Lazy<Url> = Lazy::new(|| {
-    CONFIG
-        .engine_url
-        .join("status")
-        .expect("invalid status url")
-});
+pub static ENGINE_STATUS_URL: LazyLock<Url> =
+    LazyLock::new(|| CONFIG.engine_url.join("status").unwrap());
 
 #[derive(Clone, Debug)]
 pub struct Status {
