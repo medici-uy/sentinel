@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  ZIP_FILE: watchman.zip
+  ZIP_FILE: sentinel.zip
 
 jobs:
   release:
