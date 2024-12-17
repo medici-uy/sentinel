@@ -27,8 +27,6 @@ jobs:
         uses: jaxxstorm/action-install-gh-release@v1
         with:
           repo: cargo-lambda/cargo-lambda
-          platform: linux
-          arch: aarch64
 
       - uses: Swatinem/rust-cache@v2
 
