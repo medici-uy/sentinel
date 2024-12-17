@@ -15,14 +15,10 @@ use status::Status;
 struct Payload {}
 
 async fn handler(_event: LambdaEvent<Payload>) -> Result<(), Error> {
-    println!("1");
     let status = Status::check().await;
-    println!("2");
 
     if status.did_change().await? {
-        println!("3");
         insert_status_change(status.clone()).await?;
-        println!("4");
         send_email(status).await?;
     }
 
