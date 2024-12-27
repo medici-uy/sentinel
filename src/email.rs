@@ -4,7 +4,7 @@ use lambda_runtime::Error;
 use medici_shared::traits::EmailTemplate;
 use serde::Serialize;
 
-use super::config::aws_ses_client;
+use super::config::AWS_SES_CLIENT;
 use super::Status;
 use super::CONFIG;
 
@@ -33,7 +33,7 @@ pub async fn send_email(status: Status) -> Result<(), Error> {
         .to_addresses(&CONFIG.to_email_address)
         .build();
 
-    aws_ses_client()
+    AWS_SES_CLIENT
         .send_email()
         .from_email_address(&CONFIG.from_email_address)
         .destination(destination)
