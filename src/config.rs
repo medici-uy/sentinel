@@ -44,7 +44,13 @@ pub async fn init() {
     let env_filter = EnvFilter::try_new(&CONFIG.rust_log).unwrap();
 
     subscriber::registry()
-        .with(subscriber::fmt::layer().json())
+        .with(
+            subscriber::fmt::layer()
+                .json()
+                .with_current_span(false)
+                .without_time()
+                .with_ansi(false),
+        )
         .with(env_filter)
         .init();
 
