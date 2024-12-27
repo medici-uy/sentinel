@@ -3,6 +3,7 @@ use std::sync::LazyLock;
 
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
+use lambda_runtime::tracing::debug;
 use lambda_runtime::Error;
 use medici_shared::status::engine::EngineStatus;
 use reqwest::StatusCode;
@@ -11,7 +12,7 @@ use url::Url;
 use super::config::{CONFIG, HTTP_CLIENT};
 use super::helpers::{was_engine_deployed_recently, was_healthy};
 
-const STATUS_TABLE_PK_VALUE: &str = "medici";
+pub const STATUS_TABLE_PK_VALUE: &str = "medici";
 
 pub static ENGINE_STATUS_URL: LazyLock<Url> =
     LazyLock::new(|| CONFIG.engine_url.join("status").unwrap());
@@ -45,6 +46,8 @@ impl Status {
 
     pub async fn did_change(&self) -> Result<bool, Error> {
         let was_healthy = was_healthy().await?;
+
+        debug!("was healthy: {was_healthy}");
 
         Ok((!was_healthy && self.healthy())
             || (was_healthy && !self.healthy() && !was_engine_deployed_recently().await?))
@@ -95,7 +98,7 @@ impl From<Status> for HashMap<String, AttributeValue> {
             ("pk".into(), AttributeValue::S(STATUS_TABLE_PK_VALUE.into())),
             ("healthy".into(), AttributeValue::Bool(status.healthy())),
             (
-                "changed_at".into(),
+                "date".into(),
                 AttributeValue::S(status.checked_at.to_rfc3339()),
             ),
         ])

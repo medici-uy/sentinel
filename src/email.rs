@@ -1,6 +1,5 @@
 use aws_sdk_sesv2::types::Destination;
 use chrono::{DateTime, Utc};
-use lambda_runtime::Error;
 use medici_shared::traits::EmailTemplate;
 use serde::Serialize;
 
@@ -27,7 +26,7 @@ impl From<Status> for StatusChangeEmail {
     }
 }
 
-pub async fn send_email(status: Status) -> Result<(), Error> {
+pub async fn send_email(status: Status) {
     let template = StatusChangeEmail::from(status);
     let destination = Destination::builder()
         .to_addresses(&CONFIG.to_email_address)
@@ -39,7 +38,6 @@ pub async fn send_email(status: Status) -> Result<(), Error> {
         .destination(destination)
         .content(template.email_content())
         .send()
-        .await?;
-
-    Ok(())
+        .await
+        .unwrap();
 }

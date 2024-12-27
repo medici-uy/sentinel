@@ -26,7 +26,7 @@ impl Config {
 }
 
 fn default_rust_log() -> String {
-    "info".into()
+    "sentinel=info".into()
 }
 
 pub static HTTP_CLIENT: LazyLock<reqwest::Client> = LazyLock::new(reqwest::Client::new);

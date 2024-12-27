@@ -5,7 +5,7 @@ mod status;
 
 use lambda_runtime::{
     service_fn,
-    tracing::{debug, info},
+    tracing::{debug, info, trace},
     Error, LambdaEvent,
 };
 use serde::Deserialize;
@@ -25,8 +25,13 @@ async fn handler(_event: LambdaEvent<Payload>) -> Result<(), Error> {
     if status.did_change().await? {
         info!("status changed");
 
-        insert_status_change(status.clone()).await?;
-        send_email(status).await?;
+        insert_status_change(status.clone()).await;
+
+        trace!("status inserted");
+
+        send_email(status).await;
+
+        trace!("email sent");
     }
 
     Ok(())

@@ -1,9 +1,10 @@
+use aws_sdk_dynamodb::types::AttributeValue;
 use aws_smithy_types_convert::date_time::DateTimeExt;
 use chrono::{DateTime, Utc};
-use lambda_runtime::Error;
+use lambda_runtime::{tracing::debug, Error};
 
 use super::config::*;
-use super::status::Status;
+use super::status::{Status, STATUS_TABLE_PK_VALUE};
 
 async fn engine_last_deployed_at() -> Result<DateTime<Utc>, Error> {
     let services_response = AWS_ECS_CLIENT
@@ -44,15 +45,18 @@ pub async fn was_healthy() -> Result<bool, Error> {
         .query()
         .table_name(&CONFIG.status_table_name)
         .key_condition_expression("pk = :pk")
-        .expression_attribute_names("pk", "status")
+        .expression_attribute_values(":pk", AttributeValue::S(STATUS_TABLE_PK_VALUE.into()))
         .limit(1)
         .scan_index_forward(false)
         .send()
-        .await?;
+        .await
+        .unwrap();
 
     let Some(last_status) = query_output.items().first() else {
         return Ok(true);
     };
+
+    debug!("last status: {last_status:?}");
 
     let last_healthy = last_status
         .get("healthy")
@@ -63,13 +67,12 @@ pub async fn was_healthy() -> Result<bool, Error> {
     Ok(*last_healthy)
 }
 
-pub async fn insert_status_change(status: Status) -> Result<(), Error> {
+pub async fn insert_status_change(status: Status) {
     AWS_DYNAMODB_CLIENT
         .put_item()
         .table_name(&CONFIG.status_table_name)
         .set_item(Some(status.into()))
         .send()
-        .await?;
-
-    Ok(())
+        .await
+        .unwrap();
 }
